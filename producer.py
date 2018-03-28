@@ -1,10 +1,12 @@
 # producer.py
 import time
 import cv2
-from kafka import SimpleProducer, KafkaClient
+from kafka import KafkaProducer
 #  connect to Kafka
-kafka = KafkaClient('localhost:9092')
-producer = SimpleProducer(kafka)
+from kafka.errors import KafkaError
+import logging
+
+producer = KafkaProducer(bootstrap_servers=['192.168.2.102:9092'], retries=5)
 # Assign a topic
 topic = 'my-topic'
 
@@ -15,7 +17,7 @@ def video_emitter(video):
     print(' emitting.....')
 
     # read the file
-    while (video.isOpened):
+    while video.isOpened:
         # read the image in each frame
         success, image = video.read()
 
@@ -26,9 +28,24 @@ def video_emitter(video):
         # convert the image png
         ret, jpeg = cv2.imencode('.png', image)
         # Convert the image to bytes and send to kafka
-        producer.send_messages(topic, jpeg.tobytes())
+        # Asynchronous by default
+        future = producer.send(topic, jpeg.tobytes())
+
+        # Block for 'synchronous' sends
+        try:
+            record_metadata = future.get(timeout=10)
+        except KafkaError:
+            # Decide what to do if produce request failed...
+            logging.exception(KafkaError)
+            pass
+
+        # Successful result returns assigned partition and offset
+        print(record_metadata.topic)
+        print(record_metadata.partition)
+        print(record_metadata.offset)
         # To reduce CPU usage create sleep time of 0.2sec
         time.sleep(0.2)
+    # producer.flush()
     # clear the capture
     video.release()
     print('done emitting')
