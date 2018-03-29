@@ -4,8 +4,8 @@ from kafka import KafkaProducer
 from kafka.errors import KafkaError
 import logging
 
-producer = KafkaProducer(bootstrap_servers=['192.168.2.102:9092'], retries=5)
-topic = 'my-topic'
+producer = KafkaProducer(bootstrap_servers=['localhost:9092'], retries=5)
+topic = 'video-stream'
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 def video_emitter():
@@ -19,31 +19,27 @@ def video_emitter():
 
         for (x, y, w, h) in faces:
             cv2.rectangle(image, (x,y), (x+w, y+h), (255, 0, 0), 2)
-            roi_gray = gray[y:y+h, x:x+w]
-            roi_color = image[y:y+h, x:x+w]
+            # roi_gray = gray[y:y+h, x:x+w]
+            # roi_color = image[y:y+h, x:x+w]
 
-        key = cv2.waitKey(30) & 0xff
-        if not success or key ==27:
+        if not success:
             break
 
         ret, jpeg = cv2.imencode('.png', image)
-        future = producer.send(topic, image.tobytes())
+        future = producer.send(topic, jpeg.tobytes())
 
         try:
             record_metadata = future.get(timeout=10)
+            print("topic: {}, partition: {}, offset: {}".format(record_metadata.topic, record_metadata.partition, record_metadata.offset))
         except KafkaError:
             logging.exception(KafkaError)
             pass
 
-        print("topic: {}, partition: {}, offset: {}".format(record_metadata.topic, record_metadata.partition, record_metadata.offset))
-
-        # To reduce CPU usage create sleep time of 0.2sec
         time.sleep(0.2)
 
     # clear the capture
     video.release()
     print('done emitting')
-
 
 if __name__ == '__main__':
     video_emitter()

@@ -1,7 +1,7 @@
 from flask import Flask, Response
 from kafka import KafkaConsumer
 
-consumer = KafkaConsumer('my-topic', group_id='view', bootstrap_servers=['192.168.2.102:9092'])
+consumer = KafkaConsumer('video-stream', group_id='view', bootstrap_servers=['localhost:9092'])
 
 app = Flask(__name__)
 
