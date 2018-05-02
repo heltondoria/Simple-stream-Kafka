@@ -6,7 +6,6 @@ import logging
 
 topic = 'video-stream'
 producer = KafkaProducer(bootstrap_servers=['localhost:9092'], retries=5)
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 def video_emitter(video):
     video = cv2.VideoCapture(video)
