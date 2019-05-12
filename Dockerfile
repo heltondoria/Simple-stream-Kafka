@@ -3,7 +3,7 @@ FROM openjdk:8u212-jdk-alpine3.9
 ARG kafka_version=1.0.1
 ARG scala_version=2.12
 
-MAINTAINER wurstmeister
+LABEL maintainer="helton.doria@gmail.com"
 
 ENV KAFKA_VERSION=$kafka_version \
     SCALA_VERSION=$scala_version \
