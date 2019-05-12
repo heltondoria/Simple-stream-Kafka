@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 mirror=$(curl --stderr /dev/null 'https://www.apache.org/dyn/closer.cgi?as_json=1' | jq -r '.preferred')
 
