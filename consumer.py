@@ -2,8 +2,8 @@ from flask import Flask, Response
 from kafka import KafkaConsumer
 
 consumer = KafkaConsumer('video-stream', group_id='view', bootstrap_servers=['localhost:9092'])
-
 app = Flask(__name__)
+HOST_ADDRESS = '127.0.0.1'
 
 
 @app.route('/')
@@ -19,4 +19,4 @@ def kafkastream():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host=HOST_ADDRESS)
