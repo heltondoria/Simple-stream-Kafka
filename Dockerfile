@@ -1,4 +1,4 @@
-FROM anapsix/alpine-java
+FROM openjdk:8u212-jdk-alpine3.9
 
 ARG kafka_version=1.0.1
 ARG scala_version=2.12
@@ -13,7 +13,7 @@ ENV PATH=${PATH}:${KAFKA_HOME}/bin
 
 COPY download-kafka.sh start-kafka.sh broker-list.sh create-topics.sh /tmp/
 
-RUN apk add --update unzip wget curl docker jq coreutils \
+RUN apk add --no-cache unzip wget curl docker jq coreutils \
  && chmod a+x /tmp/*.sh \
  && mv /tmp/start-kafka.sh /tmp/broker-list.sh /tmp/create-topics.sh /usr/bin \
  && sync && /tmp/download-kafka.sh \
